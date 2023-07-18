@@ -27,6 +27,16 @@ app.message(async ({ say }) => {
   await say("Hi :wave:");
 });
 
+app.command('/ushers', async({body, ack}) => {
+  ack();
+  await app.client.chat.postEphemeral({
+    token: process.env.SLACK_BOT_TOKEN,
+    channel: body.channel_id,
+    text: "Greetings, user!" ,
+    user: body.user_id
+  });
+});
+
 // Main Code
 export async function handler (event: APIGatewayEvent, context: Context) {
   const payload = parseRequestBody(event.body);
