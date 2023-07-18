@@ -15,9 +15,21 @@ const app = new App({
   receiver: expressReceiver
 });
 
-function parseRequestBody(stringBody: string | null) {
+function parseRequestBody(stringBody: string | null, contentType: string | undefined) {
   try {
-    return JSON.parse(stringBody ?? "");
+    let inputStringBody: string = stringBody ?? "";
+    let result: any = {};
+
+    if (contentType && contentType === 'application/x-www-form-urlencoded') {
+      var keyValuePairs = inputStringBody.split('&');
+      keyValuePairs.forEach(function(pair: string): void {
+        let individualKeyValuePair: string[] = pair.split('=');
+        result[individualKeyValuePair[0]] = decodeURIComponent(individualKeyValuePair[1] || '');
+      });
+      return JSON.parse(JSON.stringify(result));
+    } else {
+      return JSON.parse(inputStringBody);
+    }
   } catch {
     return undefined;
   }
@@ -39,7 +51,7 @@ app.command('/ushers', async({body, ack}) => {
 
 // Main Code
 export async function handler (event: APIGatewayEvent, context: Context) {
-  const payload = parseRequestBody(event.body);
+  const payload = parseRequestBody(event.body, event.headers["content-type"]);
   if(payload && payload.type && payload.type === 'url_verification') {
     return {
       statusCode: 200,
