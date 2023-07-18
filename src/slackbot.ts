@@ -23,6 +23,7 @@ function parseRequestBody(stringBody: string | null) {
   }
 }
 
+// Main Code
 export async function handler (event: APIGatewayEvent, context: Context) {
   const payload = parseRequestBody(event.body);
   if(payload && payload.type && payload.type === 'url_verification') {
